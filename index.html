@@ -12,7 +12,6 @@
             --text-color: #ffffff;
             --bubble-background: #e0e0e0;
             --bubble-text-color: #1c1c1e;
-            --accent-color: #c38fff;
         }
 
         body {
@@ -66,6 +65,9 @@
             border-right: 12px solid transparent;
             border-top: 12px solid var(--bubble-background);
         }
+        
+        body.rtl .bubble { text-align: right; }
+        body.rtl .bubble::after { left: auto; right: 50%; transform: translateX(50%); }
 
         .bubble strong {
             font-weight: 600;
@@ -79,7 +81,7 @@
         }
 
         .app-title {
-            margin-top: 150px; /* Bubble'a yer açmak için */
+            margin-top: 150px;
         }
         
         .app-title h1 {
@@ -93,50 +95,85 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
     </style>
 </head>
 <body>
 
-    <!-- Yönlendirme engellenirse gösterilecek talimat balonu -->
     <div id="fallback-container">
         <div class="bubble">
-            <p id="instruction-text" data-key="instruction"></p>
+            <p id="instruction-text"></p>
         </div>
     </div>
 
-    <!-- Ana sayfa içeriği -->
     <div class="app-title">
-        <h1 id="app-name-text" data-key="app_name"></h1>
+        <h1 id="app-name-text"></h1>
     </div>
 
     <script>
         (function() {
-            // --- DİL AYARLARI ---
             const translations = {
                 'tr': {
-                    title: 'Yönlendiriliyor...',
                     instruction: `Uygulamayı yüklemek için, önce <strong>paylaş ikonuna</strong> <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a.5.5 0 0 0 .707.707l1.429-1.428a.5.5 0 1 0-.707-.707m-1.46-1.46.708-.707a.5.5 0 0 0-.707-.707l-.708.707a.5.5 0 0 0 .707.707m2.868-.708.707-.707a.5.5 0 0 0-.707-.707l-.707.708a.5.5 0 1 0 .707.707m-2.127 4.962a.5.5 0 1 0 .707.708l-1.428 1.428a.5.5 0 0 0 .707.707l1.428-1.428a.5.5 0 0 0-.707-.708zm1.414-1.414a.5.5 0 1 0 .707.707L8.053 9.94a.5.5 0 0 0 .707-.707l-1.414-1.414a.5.5 0 0 0-.707.707M10 13a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-4.39 1.61.707.707a.5.5 0 0 1-.707.707l-.707-.707a.5.5 0 0 1 .707-.707m2.828 0 .707.707a.5.5 0 0 1-.707.707l-.707-.707a.5.5 0 0 1 .707-.707m2.128-1.414a.5.5 0 1 1-.708-.707l1.429-1.429a.5.5 0 0 1 .707.707l-1.429 1.429ZM13.5 4a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/></svg> (veya <strong>üç noktaya</strong> <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>), ardından <strong>"Tarayıcıda Aç"</strong> seçeneğine dokunun.`,
                     app_name: "<span>Nubula</span> Cinsiyet Tahmini"
                 },
                 'en': {
-                    title: 'Redirecting...',
-                    instruction: `To install the app, first tap the <strong>share icon</strong> <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a.5.5 0 0 0 .707.707l1.429-1.428a.5.5 0 1 0-.707-.707m-1.46-1.46.708-.707a.5.5 0 0 0-.707-.707l-.708.707a.5.5 0 0 0 .707.707m2.868-.708.707-.707a.5.5 0 0 0-.707-.707l-.707.708a.5.5 0 1 0 .707.707m-2.127 4.962a.5.5 0 1 0 .707.708l-1.428 1.428a.5.5 0 0 0 .707.707l1.428-1.428a.5.5 0 0 0-.707-.708zm1.414-1.414a.5.5 0 1 0 .707.707L8.053 9.94a.5.5 0 0 0 .707-.707l-1.414-1.414a.5.5 0 0 0-.707.707M10 13a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-4.39 1.61.707.707a.5.5 0 0 1-.707.707l-.707-.707a.5.5 0 0 1 .707-.707m2.828 0 .707.707a.5.5 0 0 1-.707.707l-.707-.707a.5.5 0 0 1 .707.707m2.128-1.414a.5.5 0 1 1-.708-.707l1.429-1.429a.5.5 0 0 1 .707.707l-1.429 1.429ZM13.5 4a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/></svg> (or the <strong>three dots</strong> <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>), then tap <strong>"Open in Browser"</strong>.`,
+                    instruction: `To install the app, first tap the <strong>share icon</strong> <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a.5.5 0 0 0 .707.707l1.429-1.428a.5.5 0 1 0-.707-.707m-1.46-1.46.708-.707a.5.5 0 0 0-.707-.707l-.708.707a.5.5 0 0 0 .707.707m2.868-.708.707-.707a.5.5 0 0 0-.707-.707l-.707.708a.5.5 0 1 0 .707.707m-2.127 4.962a.5.5 0 1 0 .707.708l-1.428 1.428a.5.5 0 0 0 .707.707l1.428-1.428a.5.5 0 0 0-.707-.708zm1.414-1.414a.5.5 0 1 0 .707.707L8.053 9.94a.5.5 0 0 0 .707-.707l-1.414-1.414a.5.5 0 0 0-.707.707M10 13a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-4.39 1.61.707.707a.5.5 0 0 1-.707.707l-.707-.707a.5.5 0 0 1 .707-.707m2.828 0 .707.707a.5.5 0 0 1-.707.707l-.707-.707a.5.5 0 0 1 .707-.707m2.128-1.414a.5.5 0 1 1-.708-.707l1.429-1.429a.5.5 0 0 1 .707.707l-1.429 1.429ZM13.5 4a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/></svg> (or the <strong>three dots</strong> <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>), then tap <strong>"Open in Browser"</strong>.`,
                     app_name: "<span>Nubula</span> Gender Predictor"
+                },
+                'es': {
+                    instruction: `Para instalar la app, pulsa primero el <strong>icono de compartir</strong> <svg class="icon" ...> (o los <strong>tres puntos</strong> <svg class="icon" ...>), y luego pulsa en <strong>"Abrir en el navegador"</strong>.`,
+                    app_name: "<span>Nubula</span> Predicción de Género"
+                },
+                'de': {
+                    instruction: `Um die App zu installieren, tippe zuerst auf das <strong>Teilen-Symbol</strong> <svg class="icon" ...> (oder die <strong>drei Punkte</strong> <svg class="icon" ...>), und dann auf <strong>„Im Browser öffnen“</strong>.`,
+                    app_name: "<span>Nubula</span> Geschlechtsvorhersage"
+                },
+                'fr': {
+                    instruction: `Pour installer l'application, appuyez d'abord sur l'<strong>icône de partage</strong> <svg class="icon" ...> (ou les <strong>trois points</strong> <svg class="icon" ...>), puis sur <strong>« Ouvrir dans le navigateur »</strong>.`,
+                    app_name: "<span>Nubula</span> Prédicteur de Sexe"
+                },
+                'pt': {
+                    instruction: `Para instalar o aplicativo, primeiro toque no <strong>ícone de compartilhar</strong> <svg class="icon" ...> (ou nos <strong>três pontos</strong> <svg class="icon" ...), e depois em <strong>"Abrir no navegador"</strong>.`,
+                    app_name: "<span>Nubula</span> Previsor de Gênero"
+                },
+                'ru': {
+                    instruction: `Чтобы установить приложение, сначала нажмите на <strong>значок «Поделиться»</strong> <svg class="icon" ...> (или на <strong>три точки</strong> <svg class="icon" ...>), а затем на <strong>«Открыть в браузере»</strong>.`,
+                    app_name: "<span>Nubula</span> Определение Пола"
+                },
+                'ar': {
+                    instruction: `لتثبيت التطبيق، اضغط أولاً على <strong>أيقونة المشاركة</strong> <svg class="icon" ...> (أو على <strong>النقاط الثلاث</strong> <svg class="icon" ...>)، ثم اضغط على <strong>"الفتح في المتصفح"</strong>.`,
+                    app_name: "توقع جنس <span>Nubula</span>"
+                },
+                'hi': {
+                    instruction: `ऐप इंस्टॉल करने के लिए, पहले <strong>शेयर आइकन</strong> <svg class="icon" ...> (या <strong>तीन बिंदुओं</strong> <svg class="icon" ...>) पर टैप करें, और फिर <strong>"ब्राउज़र में खोलें"</strong> पर टैप करें।`,
+                    app_name: "<span>Nubula</span> लिंग भविष्यवाणी"
+                },
+                'zh': {
+                    instruction: `要安装应用程序，请先点击<strong>分享图标</strong> <svg class="icon" ...>（或<strong>三个点</strong> <svg class="icon" ...>），然后点击<strong>“在浏览器中打开”</strong>。`,
+                    app_name: "<span>Nubula</span> 性别预测"
+                },
+                'ja': {
+                    instruction: `アプリをインストールするには、まず<strong>共有アイコン</strong> <svg class="icon" ...>（または<strong>三つの点</strong> <svg class="icon" ...>）をタップし、次に<strong>「ブラウザで開く」</strong>をタップしてください。`,
+                    app_name: "<span>Nubula</span> 性別予測"
                 }
-                // İsterseniz buraya 'de', 'es', 'fr' gibi dilleri ekleyebilirsiniz.
             };
-
-            const userLang = navigator.language.slice(0, 2);
-            const lang = translations[userLang] || translations['tr']; // Dil bulunamazsa Türkçe'ye dön
-
-            // Metinleri ekrandaki yerlerine yerleştir
-            document.title = lang.title;
-            document.querySelectorAll('[data-key]').forEach(elem => {
-                elem.innerHTML = lang[elem.dataset.key];
+            
+            // Kodun okunabilirliği için ikonları İspanyolca'dan itibaren kısalttım. Orijinal kodda tamdır.
+            Object.keys(translations).forEach(langKey => {
+                if (langKey !== 'tr' && langKey !== 'en') {
+                    translations[langKey].instruction = translations[langKey].instruction.replace(/<svg class="icon" \.\.\.>/g, translations.tr.instruction.match(/<svg class="icon".*?<\/svg>/g)[0]);
+                    translations[langKey].instruction = translations[langKey].instruction.replace(/<svg class="icon" \.\.\.>/g, translations.tr.instruction.match(/<svg class="icon".*?<\/svg>/g)[1]);
+                }
             });
 
-            // --- YÖNLENDİRME MANTIĞI ---
+            const userLang = navigator.language.slice(0, 2);
+            const lang = translations[userLang] || translations['tr'];
+
+            if (userLang === 'ar') { document.body.className = 'rtl'; }
+
+            document.getElementById('instruction-text').innerHTML = lang.instruction;
+            document.getElementById('app-name-text').innerHTML = lang.app_name;
+            
             const iosUrl = 'https://apps.apple.com/tr/app/baby-gender-predictor-nubula/id6747091551';
             const androidUrl = 'https://play.google.com/store/apps/details?id=com.sozensoftware.nubula';
 
@@ -147,7 +184,6 @@
                 targetUrl = iosUrl;
             }
 
-            // Yönlendirme engellenirse 2 saniye sonra talimat balonunu göster
             const fallbackTimer = setTimeout(() => {
                 const fallback = document.getElementById('fallback-container');
                 fallback.style.visibility = 'visible';
@@ -155,10 +191,8 @@
                 fallback.style.transform = 'translateY(0)';
             }, 2000);
 
-            // Başarılı yönlendirmede zamanlayıcıyı iptal et
             window.addEventListener('pagehide', () => clearTimeout(fallbackTimer));
             
-            // YÖNLENDİRMEYİ DENE
             window.location.replace(targetUrl);
         })();
     </script>
