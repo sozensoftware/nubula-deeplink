@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uygulama Mağazasına Yönlendiriliyor...</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        #loader { display: block; } /* Başlangıçta görünür */
+        #fallback { display: none; } /* Başlangıçta gizli */
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1c1c1e;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #6c6c70;
+        }
+        .instructions {
+            margin-top: 25px;
+            background-color: #f0f2f5;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.7;
+            text-align: left;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e1e1e1;
+            border-top: 5px solid #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <!-- 1. Otomatik yönlendirme denenirken gösterilecek içerik -->
+        <div id="loader">
+            <div class="spinner"></div>
+            <h1>Mağazaya Yönlendiriliyor</h1>
+            <p>Lütfen bekleyin...</p>
+        </div>
+
+        <!-- 2. Yönlendirme engellenirse gösterilecek içerik -->
+        <div id="fallback">
+            <h1>Neredeyse Tamam!</h1>
+            <p>
+                Uygulamayı yüklemek için sayfayı telefonunuzun ana tarayıcısında açmanız yeterli.
+            </p>
+            <div class="instructions">
+                Sağ üst köşedeki <strong>üç noktaya (⋮)</strong> veya <strong>paylaşım ikonuna</strong> basın ve açılan menüden <strong>"Tarayıcıda Aç"</strong> (veya "Safari'de Aç") seçeneğini seçin.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Mağaza linkleri
+            const iosUrl = 'https://apps.apple.com/tr/app/baby-gender-predictor-nubula/id6747091551';
+            const androidUrl = 'https://play.google.com/store/apps/details?id=com.sozensoftware.nubula';
+
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            let targetUrl = androidUrl;
+
+            // İşletim sistemini tespit et
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                targetUrl = iosUrl;
+            }
+
+            // Yönlendirme engellenirse 2.5 saniye sonra talimatları göster
+            const fallbackTimer = setTimeout(function() {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('fallback').style.display = 'block';
+            }, 2500);
+
+            // Başarılı yönlendirme durumunda (kullanıcı sayfadan ayrıldığında)
+            // zamanlayıcıyı iptal et ki talimatlar boşuna görünmesin.
+            window.addEventListener('pagehide', function() {
+                clearTimeout(fallbackTimer);
+            });
+            
+            // YÖNLENDİRMEYİ DENE
+            // .replace() kullanmak, kullanıcının geri tuşuna bastığında 
+            // tekrar bu boş sayfaya dönmesini engeller.
+            window.location.replace(targetUrl);
+        })();
+    </script>
+</body>
+</html>
